@@ -56,6 +56,27 @@
     "glow_hold": "Warten auf profitable China-Units bevor aggressive Skalierung",
     "hamid_relationship": "Faire Preise, bringt große Projekte (Tempelhof, EUPHORIC, weitere möglich)"
   },
+  "monitoring": {
+    "tempelhof": {
+      "last_check": "2026-08-09",
+      "latest_news": {
+        "date": "2026-08-06",
+        "headline": "SPD schlägt Surfwelle statt Bebauung vor",
+        "key_facts": [
+          "Steffen Krach (SPD) will Surfwelle auf Tempelhofer Feld",
+          "Bebauung weiterhin abgelehnt",
+          "IBB-Studie: 21.400 Wohnungen AM RAND (nicht auf Feld) finanziell machbar",
+          "Kollhoff-Nöfer Entwurf: 100 Hektar Fläche, serielle Bauweise",
+          "Gesetz verbietet weiterhin Bebauung des Felds selbst"
+        ]
+      },
+      "important_facts": {
+        "bebauung_location": "AM RAND des Felds, NICHT auf dem Feld selbst",
+        "current_status": "Gesetz verbietet Bebauung, SPD schlägt alternative Nutzung vor",
+        "hamid_project": "Marketing für 12 Türme Konzept (Teil von Kollhoff-Nöfer Entwurf)"
+      }
+    }
+  },
   "tools": {
     "canva": {
       "workflow": "Julian erstellt Designs → 'Projekte' Ordner → Claude analysiert Style → neue Posts konsistent",
