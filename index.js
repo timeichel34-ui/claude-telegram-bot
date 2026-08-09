@@ -126,12 +126,15 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+// Commands BEFORE text handler
 bot.command('start', (ctx) => {
   ctx.reply('Hey! Ich bin Claude. Schreib mir einfach deine Aufgabe.');
 });
 
 bot.command('getchatid', (ctx) => {
-  ctx.reply(`Deine Chat ID: ${ctx.chat.id}\n\nFüge sie als JULIAN_TELEGRAM_CHAT_ID in Railway Environment Variables hinzu für Auto-Monitoring!`);
+  const chatId = ctx.chat.id;
+  ctx.reply(`✅ Deine Chat ID: ${chatId}\n\nFüge sie als JULIAN_TELEGRAM_CHAT_ID in Railway hinzu!`);
+  console.log('Chat ID requested:', chatId);
 });
 
 bot.on('text', async (ctx) => {
