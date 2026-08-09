@@ -1,0 +1,66 @@
+{
+  "last_updated": "2026-08-09",
+  "projects": {
+    "agency": {
+      "status": "0 aktive Kunden",
+      "lost_clients": ["Salamatee (August 2026 - kein Traffic)"],
+      "pipeline": {
+        "tempelhof": {
+          "payment": 3500,
+          "timing": "10.08.2026 (morgen)",
+          "description": "Berlins größtes Wohnungsprojekt, 12 Türme, 5.000 Wohnungen"
+        },
+        "euphoric": {
+          "month_1": 7000,
+          "ongoing": 5000,
+          "timing": "Zahlung nächste Wochen",
+          "structure": "50/50 mit Max, Julian = Marketing, Max = Produkt"
+        },
+        "hamid_personal": {
+          "monthly": 950,
+          "start": "September 2026 (21 Tage)",
+          "scope": "15 Posts + Management",
+          "note": "Fairer Preis - Hamid holte andere Projekte"
+        }
+      },
+      "projected_recurring": "~6.000€/Monat ab September"
+    },
+    "glow": {
+      "sales": {
+        "units": 40,
+        "revenue": 750,
+        "status": "UNPROFITABEL (Margin-Problem)"
+      },
+      "china_order": {
+        "status": "Unterwegs",
+        "arrival": "3-4 Wochen (Anfang September)",
+        "note": "Bessere Margins, dann profitable"
+      },
+      "current_focus": "NEBENBEI - kein Main-Fokus bis profitable Units ankommen",
+      "strategy": "Agency-Cashflow → Reinvestment in GLOW Ads/Creator/Tools sobald China-Order da"
+    },
+    "euphoric": {
+      "partnership": "50/50 Julian + Max",
+      "month_1_total": 7000,
+      "breakdown": {
+        "website": 4000,
+        "marketing": 3000
+      },
+      "ongoing_monthly": 5000,
+      "services": ["Meta Ads Management", "Website Maintenance", "Upsells", "Kampagnen"],
+      "payment_timing": "Nächste Wochen"
+    }
+  },
+  "business_rules": {
+    "priority": "Agency Cashflow für GLOW Reinvestment",
+    "glow_hold": "Warten auf profitable China-Units bevor aggressive Skalierung",
+    "hamid_relationship": "Faire Preise, bringt große Projekte (Tempelhof, EUPHORIC, weitere möglich)"
+  },
+  "tools": {
+    "canva": {
+      "workflow": "Julian erstellt Designs → 'Projekte' Ordner → Claude analysiert Style → neue Posts konsistent",
+      "brand_kit_id": "kAGkLk8ZzLM",
+      "auto_folder": "Projekte"
+    }
+  }
+}

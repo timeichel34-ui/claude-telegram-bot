@@ -1,6 +1,8 @@
 require('dotenv').config();
 const { Telegraf } = require('telegraf');
 const Anthropic = require('@anthropic-ai/sdk');
+const fs = require('fs');
+const path = require('path');
 
 const SYSTEM_PROMPT = `Du bist Julians persönlicher KI-Assistent. Julian ist 18 Jahre alt, aus Deutschland, 4 Jahre Ecom/Marketing Erfahrung. Er ist kein Anfänger. Er kommuniziert auf Deutsch, aber Brand Copy/Ads immer auf Englisch.
 
@@ -107,6 +109,18 @@ Heutiges Datum: ${new Date().toLocaleDateString('de-DE')}
 Julians Nachricht:
 `;
 
+// Load dynamic memory
+let DYNAMIC_MEMORY = '';
+try {
+  const memoryPath = path.join(__dirname, 'memory.json');
+  if (fs.existsSync(memoryPath)) {
+    const memoryData = JSON.parse(fs.readFileSync(memoryPath, 'utf8'));
+    DYNAMIC_MEMORY = `\n\n=== LIVE UPDATES (Last: ${memoryData.last_updated}) ===\n${JSON.stringify(memoryData, null, 2)}\n`;
+  }
+} catch (err) {
+  console.error('Memory load failed:', err);
+}
+
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -142,7 +156,7 @@ async function runClaude(prompt) {
     messages: [
       {
         role: "user",
-        content: SYSTEM_PROMPT + prompt
+        content: SYSTEM_PROMPT + DYNAMIC_MEMORY + prompt
       }
     ]
   });
