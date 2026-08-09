@@ -130,6 +130,10 @@ bot.command('start', (ctx) => {
   ctx.reply('Hey! Ich bin Claude. Schreib mir einfach deine Aufgabe.');
 });
 
+bot.command('getchatid', (ctx) => {
+  ctx.reply(`Deine Chat ID: ${ctx.chat.id}\n\nFüge sie als JULIAN_TELEGRAM_CHAT_ID in Railway Environment Variables hinzu für Auto-Monitoring!`);
+});
+
 bot.on('text', async (ctx) => {
   const userMessage = ctx.message.text;
   await ctx.sendChatAction('typing');
@@ -163,6 +167,9 @@ async function runClaude(prompt) {
 
   return message.content[0].text;
 }
+
+// Load monitoring scheduler
+require('./monitor');
 
 bot.launch();
 console.log('Bot läuft...');
