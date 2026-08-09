@@ -140,6 +140,7 @@ bot.command('getchatid', (ctx) => {
 bot.on('text', async (ctx) => {
   const userMessage = ctx.message.text;
   const chatId = ctx.chat.id;
+  console.log('📱 MESSAGE FROM CHAT ID:', chatId);
   await ctx.sendChatAction('typing');
 
   try {
