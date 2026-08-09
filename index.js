@@ -12,30 +12,61 @@ WICHTIG — Ausgabe-Stil:
 
 === JULIANS PROJEKTE (AKTUALISIERT AUGUST 2026) ===
 
-1. JH MEDIA AGENCY — Marketing-Agentur (AKTIV)
-Status: 3 Kunden, €1.950/Monat Umsatz
-Kunden:
-  - Salamatee/Hamid: €550/Monat (10 Posts, Meta Ads, Reporting)
-  - Uwe (Lewy Potsdam): €800/Monat, 1-Monat-Test, Authentizität First
-  - Hamid Tempelhof Deal: €4.490/Monat für Berlins größtes Wohnungsprojekt (12 Türme, 5.000 Wohnungen am Tempelhofer Feld)
+1. JH MEDIA AGENCY — Marketing-Agentur
+**STATUS: 0 AKTIVE KUNDEN (August 2026)**
+
+**VERLOREN:**
+- Salamatee (August 2026): Kein neuer Traffic trotz Zahlung, verständlich
+
+**PIPELINE (2 PROJEKTE MIT ZAHLUNGEN):**
+
+A) Tempelhof Projekt:
+   - Zahlung: €3.500
+   - Timing: MORGEN (10.08.2026)
+   - Berlins größtes Wohnungsprojekt (12 Türme, 5.000 Wohnungen am Tempelhofer Feld)
+
+B) EUPHORIC Energy Drink:
+   - Zahlung: Nächste Wochen
+   - Monat 1: €7.000 (€4k Website + €3k Marketing, 50/50 mit Max)
+   - Ab Monat 2: ~€5k/Monat ongoing (Meta Ads Management, Upsells, Automation)
+   - 50/50 Partnership mit Max (Julian = Marketing, Max = Produkt)
+   - Rainbow-Design, Party/Club/Festival Energy
+
+C) Hamid Personal Brand:
+   - Start: September 2026 (in ca. 21 Tagen)
+   - Deal: 15 Posts + Management = €950/Monat
+   - Fairer Preis (Hamid holte andere Projekte ran: Tempelhof, EUPHORIC)
+   - Weitere große Projekte möglich (Hamid gibt Bescheid)
+
+**PROJECTED REVENUE:**
+- Tempelhof: €3.500 one-time (morgen)
+- EUPHORIC: €7k Monat 1, dann €5k/mo ongoing
+- Hamid Personal: €950/mo ab September
+- **Total ab September: ~€6k/Monat recurring**
+
 Services: Social Media Posts (Canva), Meta Ads, Präsentationen, Pitch Decks
 
 2. GLOW Supplements (www.glowsupplements.shop) — DTC Supplement Brand
+**STATUS AUGUST 2026:**
+- 40 Stück verkauft
+- €750 Umsatz
+- **UNPROFITABEL** (Margin-Problem)
+- China Bulk Order unterwegs → Ankunft 3-4 Wochen (Anfang September)
+- **AKTUELL NEBENBEI** (kein Main-Fokus bis profitable Units ankommen)
+
+**STRATEGIE:**
+- Agency-Cashflow nutzen für GLOW Reinvestment
+- Sobald China-Order da → Full reinvestment in Ads/Creator/Tools
+- Dann wieder Main-Fokus
+
 Produkt: Debloat & Glow Gummies — 60 Stück, 2/Tag, 30-Tage-Versorgung, Tropical Fruit, EUR 24,99
 Versprechen: DEBLOAT (Gesichtsschwellung, Wassereinlagerungen, schärferes Kinn) + GLOW (klarere Haut) + FEEL BETTER
 Zielgruppe: 16–25, männlich & weiblich, Glow Up / Looksmaxxing Nische
-Status: Store live, 500 Stück Inventory, €0 Umsatz bisher, 10-Tage-Verkaufs-Window Mai 2026
 Guarantee: 30-Day Debloat Guarantee = 30% Rabatt auf nächste Bestellung wenn kein Effekt. KEIN Geld-zurück.
 Stack: Shopify, Shopify Email, UpPromote (Affiliate 25%), NextSmartShip (Fulfillment China/EU)
 Brand Voice: Englisch, kurze Sätze, YOU/YOUR, Outcomes nicht Zutaten, Stage 3 Market Sophistication
 USP: "The only supplement gummy specifically designed to reduce facial puffiness, give you clearer glowing skin and more confidence — 2 gummies a day, that is it."
 Legal: UK FSA ✅ (17.06.2026), BVL Deutschland eingereicht (14.06.2026)
-
-3. EUPHORIC Energy Drink — Party/Club/Festival Energy (START JULI 2026)
-Partner: Julian + Max 50/50 (Julian = Marketing/Website, Max = Produkt)
-Design: Rainbow-Design
-Connection: Hamid-empfohlen
-Status: In Planung
 
 4. GLOW Up App (C:/Users/julia/Documents/glow-up-app)
 iOS App, Expo React Native + TypeScript, Node.js Backend + SQLite
