@@ -101,102 +101,161 @@ async function readArticle(url) {
   }
 }
 
-// Tempelhof News recherchieren
+// DEEP MULTI-PLATFORM RESEARCH
 async function checkTempelhofNews() {
-  console.log('🔍 Starting DEEP Tempelhof research...');
+  console.log('🔍 Starting 5-MIN DEEP RESEARCH across all platforms...');
 
   const memory = loadMemory();
   if (!memory) return;
 
   const today = new Date().toISOString().split('T')[0];
-  const lastCheck = memory.monitoring?.tempelhof?.last_check;
+  const startTime = Date.now();
 
   try {
-    // 1. EXA SEARCH - News Artikel
-    console.log('📰 Searching news articles...');
-    const results = await searchExa('Tempelhofer Feld Berlin Bebauung Wohnungen', 1);
+    const allFindings = [];
 
-    if (results.length === 0) {
-      console.log('✅ No new articles found');
+    // 1. NEWS ARTICLES (Exa)
+    console.log('📰 Phase 1: News articles...');
+    const newsResults = await searchExa('Tempelhofer Feld Berlin Bebauung', 2);
+    if (newsResults.length > 0) {
+      for (let i = 0; i < Math.min(2, newsResults.length); i++) {
+        const content = await readArticle(newsResults[i].url);
+        if (content) {
+          allFindings.push({
+            source: 'NEWS',
+            title: newsResults[i].title,
+            url: newsResults[i].url,
+            content: content.substring(0, 2000)
+          });
+        }
+      }
+    }
 
-      // Update last check
+    // 2. REDDIT DISCUSSIONS
+    console.log('💬 Phase 2: Reddit discussions...');
+    const redditResults = await searchExa('Tempelhofer Feld site:reddit.com', 2);
+    if (redditResults.length > 0) {
+      for (let r of redditResults.slice(0, 2)) {
+        const content = await readArticle(r.url);
+        if (content) {
+          allFindings.push({
+            source: 'REDDIT',
+            title: r.title,
+            url: r.url,
+            content: content.substring(0, 1500)
+          });
+        }
+      }
+    }
+
+    // 3. TWITTER/X DISCUSSIONS
+    console.log('🐦 Phase 3: Twitter discussions...');
+    const twitterResults = await searchExa('Tempelhofer Feld site:twitter.com OR site:x.com', 1);
+    if (twitterResults.length > 0) {
+      allFindings.push({
+        source: 'TWITTER',
+        title: twitterResults[0].title,
+        url: twitterResults[0].url,
+        content: twitterResults[0].title
+      });
+    }
+
+    // 4. COMMUNITY FORUMS
+    console.log('🗣️ Phase 4: Community forums...');
+    const forumResults = await searchExa('Tempelhofer Feld Diskussion Meinung', 1);
+    if (forumResults.length > 0) {
+      const content = await readArticle(forumResults[0].url);
+      if (content) {
+        allFindings.push({
+          source: 'FORUM',
+          title: forumResults[0].title,
+          url: forumResults[0].url,
+          content: content.substring(0, 1500)
+        });
+      }
+    }
+
+    console.log(`✅ Research complete: ${allFindings.length} sources in ${Math.round((Date.now() - startTime) / 1000)}s`);
+
+    if (allFindings.length === 0) {
+      console.log('No new content found');
       if (!memory.monitoring) memory.monitoring = {};
       if (!memory.monitoring.tempelhof) memory.monitoring.tempelhof = {};
       memory.monitoring.tempelhof.last_check = today;
       saveMemory(memory);
-
-      return; // Silent - keine Notification
+      return;
     }
 
-    // 2. JINA READER - Top 2 Artikel lesen
-    console.log(`📖 Reading top ${Math.min(2, results.length)} articles...`);
-    const articles = [];
-    for (let i = 0; i < Math.min(2, results.length); i++) {
-      const content = await readArticle(results[i].url);
-      if (content) {
-        articles.push({
-          url: results[i].url,
-          title: results[i].title,
-          content: content.substring(0, 3000)
-        });
-      }
-    }
+    // 5. AI STRATEGIC ANALYSIS FÜR AGENTUR
+    console.log('🧠 Generating strategic analysis for agency...');
+    const researchData = allFindings.map(f => `[${f.source}] ${f.title}\n${f.content}`).join('\n\n---\n\n');
 
-    // 3. AI-ZUSAMMENFASSUNG generieren
-    console.log('🤖 Generating AI summary...');
-    let aiSummary = '';
-    if (articles.length > 0) {
-      try {
-        const articleText = articles.map(a => `ARTIKEL: ${a.title}\n${a.content}`).join('\n\n---\n\n');
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2000,
+        messages: [{
+          role: 'user',
+          content: `Du bist Stratege für Julians Marketing-Agentur (JH Media). Er managed das Tempelhof-Projekt (€3.500).
 
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': ANTHROPIC_API_KEY,
-            'anthropic-version': '2023-06-01'
-          },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-5',
-            max_tokens: 500,
-            messages: [{
-              role: 'user',
-              content: `Fasse die wichtigsten News zum Tempelhofer Feld zusammen (3-4 Sätze, auf Deutsch, keine Formatierung):\n\n${articleText}`
-            }]
-          })
-        });
+RESEARCH DATA:
+${researchData}
 
-        const data = await response.json();
-        aiSummary = data.content[0].text;
-      } catch (err) {
-        console.error('AI summary failed:', err);
-        aiSummary = 'Zusammenfassung konnte nicht generiert werden.';
-      }
-    }
+AUFGABE:
+1. **ZUSAMMENFASSUNG** (3-4 Sätze): Was ist passiert?
+2. **STRATEGISCHE INSIGHTS** (2-3 Punkte): Was bedeutet das für das Projekt?
+3. **KREATIVE IDEEN** (3 konkrete Vorschläge):
+   - Instagram Post-Ideen
+   - Kampagnen-Konzepte
+   - Starke Texte/Zitate die man nutzen kann
+4. **HANDLUNGSEMPFEHLUNG**: Was sollte Julian JETZT tun?
 
-    // 4. TELEGRAM NOTIFICATION
-    const headlines = results.slice(0, 3).map(r => `• ${r.title}`).join('\n');
-    const message = `🏗️ *TEMPELHOF UPDATE*\n\n📅 ${today}\n\n*${results.length} neue Artikel gefunden*\n\n📰 *Zusammenfassung:*\n${aiSummary}\n\n*Headlines:*\n${headlines}\n\n🔗 Details:\n${results[0].url}`;
+FORMAT: Deutsch, direkt, kurz, umsetzbar. Keine Floskeln.`
+        }]
+      })
+    });
+
+    const analysis = await response.json();
+    const strategicReport = analysis.content[0].text;
+
+    // 6. SEND COMPREHENSIVE REPORT
+    const sourceList = allFindings.map((f, i) => `${i + 1}. [${f.source}] ${f.title.substring(0, 60)}...`).join('\n');
+
+    const message = `🏗️ *TEMPELHOF INTELLIGENCE REPORT*
+
+📅 ${today} | ${allFindings.length} Quellen analysiert
+
+${strategicReport}
+
+📚 *Quellen:*
+${sourceList}
+
+🔗 Top-Link: ${allFindings[0].url}`;
 
     await sendTelegramMessage(message);
 
-    // 5. MEMORY UPDATE
+    // 7. UPDATE MEMORY
     if (!memory.monitoring) memory.monitoring = {};
     if (!memory.monitoring.tempelhof) memory.monitoring.tempelhof = {};
     memory.monitoring.tempelhof.last_check = today;
-    memory.monitoring.tempelhof.latest_news = {
+    memory.monitoring.tempelhof.latest_research = {
       date: today,
-      articles_found: results.length,
-      top_url: results[0].url,
-      top_title: results[0].title
+      sources_analyzed: allFindings.length,
+      duration_seconds: Math.round((Date.now() - startTime) / 1000)
     };
     saveMemory(memory);
 
-    console.log('✅ Deep research complete - notification sent!');
+    console.log('✅ Strategic report sent!');
 
   } catch (err) {
     console.error('❌ Research failed:', err);
-    await sendTelegramMessage(`⚠️ Tempelhof-Check fehlgeschlagen: ${err.message}`);
+    await sendTelegramMessage(`⚠️ Research fehlgeschlagen: ${err.message}`);
   }
 }
 
