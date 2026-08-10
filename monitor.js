@@ -4,8 +4,9 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
 
-const CHAT_ID = process.env.JULIAN_TELEGRAM_CHAT_ID; // Du musst deine Chat ID hinzufügen
+const CHAT_ID = process.env.JULIAN_TELEGRAM_CHAT_ID;
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 // Memory laden
 function loadMemory() {
@@ -136,16 +137,46 @@ async function checkTempelhofNews() {
         articles.push({
           url: results[i].url,
           title: results[i].title,
-          content: content.substring(0, 2000)
+          content: content.substring(0, 3000)
         });
       }
     }
 
-    // 3. ZUSAMMENFASSUNG erstellen
-    const headlines = results.slice(0, 3).map(r => `• ${r.title}`).join('\n');
+    // 3. AI-ZUSAMMENFASSUNG generieren
+    console.log('🤖 Generating AI summary...');
+    let aiSummary = '';
+    if (articles.length > 0) {
+      try {
+        const articleText = articles.map(a => `ARTIKEL: ${a.title}\n${a.content}`).join('\n\n---\n\n');
+
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-5',
+            max_tokens: 500,
+            messages: [{
+              role: 'user',
+              content: `Fasse die wichtigsten News zum Tempelhofer Feld zusammen (3-4 Sätze, auf Deutsch, keine Formatierung):\n\n${articleText}`
+            }]
+          })
+        });
+
+        const data = await response.json();
+        aiSummary = data.content[0].text;
+      } catch (err) {
+        console.error('AI summary failed:', err);
+        aiSummary = 'Zusammenfassung konnte nicht generiert werden.';
+      }
+    }
 
     // 4. TELEGRAM NOTIFICATION
-    const message = `🏗️ *TEMPELHOF UPDATE*\n\n📅 ${today}\n\n*${results.length} neue Artikel gefunden:*\n\n${headlines}\n\n🔗 Top-Link:\n${results[0].url}`;
+    const headlines = results.slice(0, 3).map(r => `• ${r.title}`).join('\n');
+    const message = `🏗️ *TEMPELHOF UPDATE*\n\n📅 ${today}\n\n*${results.length} neue Artikel gefunden*\n\n📰 *Zusammenfassung:*\n${aiSummary}\n\n*Headlines:*\n${headlines}\n\n🔗 Details:\n${results[0].url}`;
 
     await sendTelegramMessage(message);
 
