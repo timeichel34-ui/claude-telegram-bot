@@ -3,7 +3,6 @@ const cron = require('node-cron');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
 
 const CHAT_ID = process.env.JULIAN_TELEGRAM_CHAT_ID; // Du musst deine Chat ID hinzufügen
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -57,23 +56,37 @@ async function sendTelegramMessage(text) {
   }
 }
 
-// Exa Search ausführen
+// Exa Search via direktem API Call
 async function searchExa(query, days = 1) {
-  return new Promise((resolve, reject) => {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    const dateStr = startDate.toISOString().split('T')[0];
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+  const dateStr = startDate.toISOString();
 
-    const cmd = spawn('bash', ['-c', `mcporter call exa.web_search_exa query="${query}" numResults=5 useAutoprompt=true startPublishedDate="${dateStr}"`]);
-
-    let output = '';
-    cmd.stdout.on('data', (data) => { output += data.toString(); });
-    cmd.stderr.on('data', (data) => { console.error('Exa error:', data.toString()); });
-    cmd.on('close', (code) => {
-      if (code === 0) resolve(output);
-      else reject(new Error(`Exa failed: ${code}`));
+  try {
+    const response = await fetch('https://api.exa.ai/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.EXA_API_KEY || ''
+      },
+      body: JSON.stringify({
+        query: query,
+        numResults: 5,
+        startPublishedDate: dateStr,
+        useAutoprompt: true
+      })
     });
-  });
+
+    if (!response.ok) {
+      throw new Error(`Exa API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.results || [];
+  } catch (err) {
+    console.error('Exa search failed:', err);
+    return [];
+  }
 }
 
 // Jina Reader für Artikel-Details
@@ -100,17 +113,9 @@ async function checkTempelhofNews() {
   try {
     // 1. EXA SEARCH - News Artikel
     console.log('📰 Searching news articles...');
-    const newsResults = await searchExa('Tempelhofer Feld Berlin Bebauung Wohnungen', 1);
+    const results = await searchExa('Tempelhofer Feld Berlin Bebauung Wohnungen', 1);
 
-    // Parse URLs aus Exa Results
-    const urlRegex = /URL: (https?:\/\/[^\s]+)/g;
-    const urls = [];
-    let match;
-    while ((match = urlRegex.exec(newsResults)) !== null) {
-      urls.push(match[1]);
-    }
-
-    if (urls.length === 0) {
+    if (results.length === 0) {
       console.log('✅ No new articles found');
 
       // Update last check
@@ -123,21 +128,24 @@ async function checkTempelhofNews() {
     }
 
     // 2. JINA READER - Top 2 Artikel lesen
-    console.log(`📖 Reading top ${Math.min(2, urls.length)} articles...`);
+    console.log(`📖 Reading top ${Math.min(2, results.length)} articles...`);
     const articles = [];
-    for (let i = 0; i < Math.min(2, urls.length); i++) {
-      const content = await readArticle(urls[i]);
+    for (let i = 0; i < Math.min(2, results.length); i++) {
+      const content = await readArticle(results[i].url);
       if (content) {
-        articles.push({ url: urls[i], content: content.substring(0, 2000) });
+        articles.push({
+          url: results[i].url,
+          title: results[i].title,
+          content: content.substring(0, 2000)
+        });
       }
     }
 
     // 3. ZUSAMMENFASSUNG erstellen
-    const headlines = newsResults.match(/Title: ([^\n]+)/g)?.slice(0, 3) || [];
-    const summary = headlines.map(h => `• ${h.replace('Title: ', '')}`).join('\n');
+    const headlines = results.slice(0, 3).map(r => `• ${r.title}`).join('\n');
 
     // 4. TELEGRAM NOTIFICATION
-    const message = `🏗️ *TEMPELHOF UPDATE*\n\n📅 ${today}\n\n*${urls.length} neue Artikel gefunden:*\n\n${summary}\n\n🔗 Top-Link:\n${urls[0]}`;
+    const message = `🏗️ *TEMPELHOF UPDATE*\n\n📅 ${today}\n\n*${results.length} neue Artikel gefunden:*\n\n${headlines}\n\n🔗 Top-Link:\n${results[0].url}`;
 
     await sendTelegramMessage(message);
 
@@ -147,8 +155,9 @@ async function checkTempelhofNews() {
     memory.monitoring.tempelhof.last_check = today;
     memory.monitoring.tempelhof.latest_news = {
       date: today,
-      articles_found: urls.length,
-      top_url: urls[0]
+      articles_found: results.length,
+      top_url: results[0].url,
+      top_title: results[0].title
     };
     saveMemory(memory);
 
