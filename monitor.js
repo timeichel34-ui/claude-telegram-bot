@@ -200,8 +200,8 @@ async function checkTempelhofNews() {
   }
 }
 
-// Täglich um 9:17 Uhr
-cron.schedule('17 9 * * *', () => {
+// Täglich um 9:00 Uhr
+cron.schedule('0 9 * * *', () => {
   console.log('⏰ Daily Tempelhof monitoring triggered');
   checkTempelhofNews();
 }, {
@@ -214,7 +214,7 @@ if (process.env.NODE_ENV === 'development') {
   setTimeout(checkTempelhofNews, 5000);
 }
 
-console.log('✅ Tempelhof monitoring scheduler started (9:17 Berlin time daily)');
+console.log('✅ Tempelhof monitoring scheduler started (9:00 Berlin time daily)');
 console.log('💡 CHAT_ID configured:', !!CHAT_ID);
 
 module.exports = { checkTempelhofNews };
