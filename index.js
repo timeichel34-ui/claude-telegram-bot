@@ -137,6 +137,12 @@ bot.command('getchatid', (ctx) => {
   console.log('Chat ID requested:', chatId);
 });
 
+bot.command('checktempelhof', async (ctx) => {
+  await ctx.reply('🔍 Starte Tempelhof-Check...');
+  await checkTempelhofNews();
+  await ctx.reply('✅ Check abgeschlossen! Wenn neue News gefunden → separate Notification kommt!');
+});
+
 bot.on('text', async (ctx) => {
   const userMessage = ctx.message.text;
   await ctx.sendChatAction('typing');
@@ -172,7 +178,7 @@ async function runClaude(prompt) {
 }
 
 // Load monitoring scheduler
-require('./monitor');
+const { checkTempelhofNews } = require('./monitor');
 
 bot.launch();
 console.log('Bot läuft...');
