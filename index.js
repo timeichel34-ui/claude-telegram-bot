@@ -139,19 +139,16 @@ bot.command('getchatid', (ctx) => {
 
 bot.on('text', async (ctx) => {
   const userMessage = ctx.message.text;
-  const chatId = ctx.chat.id;
-  console.log('📱 MESSAGE FROM CHAT ID:', chatId);
   await ctx.sendChatAction('typing');
 
   try {
     const reply = await runClaude(userMessage);
-    const replyWithDebug = `${reply}\n\n🔧 DEBUG: Chat-ID = ${chatId}`;
-    if (replyWithDebug.length > 4096) {
-      for (let i = 0; i < replyWithDebug.length; i += 4096) {
-        await ctx.reply(replyWithDebug.slice(i, i + 4096));
+    if (reply.length > 4096) {
+      for (let i = 0; i < reply.length; i += 4096) {
+        await ctx.reply(reply.slice(i, i + 4096));
       }
     } else {
-      await ctx.reply(replyWithDebug);
+      await ctx.reply(reply);
     }
   } catch (err) {
     console.error(err);
