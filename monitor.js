@@ -3,6 +3,7 @@ const cron = require('node-cron');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
 
 const CHAT_ID = process.env.JULIAN_TELEGRAM_CHAT_ID; // Du musst deine Chat ID hinzufügen
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -56,36 +57,107 @@ async function sendTelegramMessage(text) {
   }
 }
 
+// Exa Search ausführen
+async function searchExa(query, days = 1) {
+  return new Promise((resolve, reject) => {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    const dateStr = startDate.toISOString().split('T')[0];
+
+    const cmd = spawn('bash', ['-c', `mcporter call exa.web_search_exa query="${query}" numResults=5 useAutoprompt=true startPublishedDate="${dateStr}"`]);
+
+    let output = '';
+    cmd.stdout.on('data', (data) => { output += data.toString(); });
+    cmd.stderr.on('data', (data) => { console.error('Exa error:', data.toString()); });
+    cmd.on('close', (code) => {
+      if (code === 0) resolve(output);
+      else reject(new Error(`Exa failed: ${code}`));
+    });
+  });
+}
+
+// Jina Reader für Artikel-Details
+async function readArticle(url) {
+  try {
+    const response = await fetch(`https://r.jina.ai/${url}`);
+    return await response.text();
+  } catch (err) {
+    console.error('Jina error:', err);
+    return null;
+  }
+}
+
 // Tempelhof News recherchieren
 async function checkTempelhofNews() {
-  console.log('🔍 Checking Tempelhof news...');
+  console.log('🔍 Starting DEEP Tempelhof research...');
 
   const memory = loadMemory();
   if (!memory) return;
 
-  const lastCheck = memory.monitoring?.tempelhof?.last_check;
   const today = new Date().toISOString().split('T')[0];
+  const lastCheck = memory.monitoring?.tempelhof?.last_check;
 
-  // Simulierte News-Check (in Production würdest du hier Exa API callen)
-  // Für jetzt: Checke ob heute schon geprüft wurde
-  if (lastCheck === today) {
-    console.log('✅ Already checked today');
-    return;
+  try {
+    // 1. EXA SEARCH - News Artikel
+    console.log('📰 Searching news articles...');
+    const newsResults = await searchExa('Tempelhofer Feld Berlin Bebauung Wohnungen', 1);
+
+    // Parse URLs aus Exa Results
+    const urlRegex = /URL: (https?:\/\/[^\s]+)/g;
+    const urls = [];
+    let match;
+    while ((match = urlRegex.exec(newsResults)) !== null) {
+      urls.push(match[1]);
+    }
+
+    if (urls.length === 0) {
+      console.log('✅ No new articles found');
+
+      // Update last check
+      if (!memory.monitoring) memory.monitoring = {};
+      if (!memory.monitoring.tempelhof) memory.monitoring.tempelhof = {};
+      memory.monitoring.tempelhof.last_check = today;
+      saveMemory(memory);
+
+      return; // Silent - keine Notification
+    }
+
+    // 2. JINA READER - Top 2 Artikel lesen
+    console.log(`📖 Reading top ${Math.min(2, urls.length)} articles...`);
+    const articles = [];
+    for (let i = 0; i < Math.min(2, urls.length); i++) {
+      const content = await readArticle(urls[i]);
+      if (content) {
+        articles.push({ url: urls[i], content: content.substring(0, 2000) });
+      }
+    }
+
+    // 3. ZUSAMMENFASSUNG erstellen
+    const headlines = newsResults.match(/Title: ([^\n]+)/g)?.slice(0, 3) || [];
+    const summary = headlines.map(h => `• ${h.replace('Title: ', '')}`).join('\n');
+
+    // 4. TELEGRAM NOTIFICATION
+    const message = `🏗️ *TEMPELHOF UPDATE*\n\n📅 ${today}\n\n*${urls.length} neue Artikel gefunden:*\n\n${summary}\n\n🔗 Top-Link:\n${urls[0]}`;
+
+    await sendTelegramMessage(message);
+
+    // 5. MEMORY UPDATE
+    if (!memory.monitoring) memory.monitoring = {};
+    if (!memory.monitoring.tempelhof) memory.monitoring.tempelhof = {};
+    memory.monitoring.tempelhof.last_check = today;
+    memory.monitoring.tempelhof.latest_news = {
+      date: today,
+      articles_found: urls.length,
+      top_url: urls[0]
+    };
+    saveMemory(memory);
+
+    console.log('✅ Deep research complete - notification sent!');
+
+  } catch (err) {
+    console.error('❌ Research failed:', err);
+    await sendTelegramMessage(`⚠️ Tempelhof-Check fehlgeschlagen: ${err.message}`);
   }
-
-  // Update last check
-  if (!memory.monitoring) memory.monitoring = {};
-  if (!memory.monitoring.tempelhof) memory.monitoring.tempelhof = {};
-  memory.monitoring.tempelhof.last_check = today;
-
-  // Placeholder: In production würde hier Exa Search + Jina Reader laufen
-  // Für jetzt schicken wir eine Test-Message
-  const message = `🏗️ *Tempelhof Daily Check*\n\n✅ Monitoring aktiv\n📅 ${today}\n\n_Neue News: Keine neuen Artikel seit gestern_\n\nAktuelle Facts:\n• Einfache Mehrfamilienhäuser (keine Türme)\n• 12-Türme-Konzept verworfen\n• €3.500 Projekt läuft`;
-
-  await sendTelegramMessage(message);
-  saveMemory(memory);
-
-  console.log('✅ Tempelhof check complete');
 }
 
 // Täglich um 9:17 Uhr
